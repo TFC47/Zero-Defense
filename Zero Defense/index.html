@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Defense - v1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- PORTRAIT WARNING OVERLAY -->
+    <div id="landscape-overlay">
+        <div class="rotate-icon">📱🔄</div>
+        <h2>PROTOCOL OVERRIDE</h2>
+        <p>ROTATE DEVICE TO LANDSCAPE TO INITIALIZE</p>
+    </div>
+
+    <!-- FULL-SCREEN HOME MENU -->
+    <div id="home-screen" class="screen active">
+        <div class="home-particles"></div>
+        <div class="title-wrapper">
+            <h1 class="main-title">ZERO DEFENSE</h1>
+        </div>
+        
+        <div id="map-selector">
+            <p class="subtitle">SELECT DEPLOYMENT ZONE</p>
+            <div class="map-cards">
+                <div class="map-card active" data-map="forest">ZONE 01: FOREST</div>
+                <div class="map-card" data-map="snowy">ZONE 02: GLACIER</div>
+                <div class="map-card" data-map="japan">ZONE 03: EDO</div>
+            </div>
+        </div>
+        
+        <!-- Updated Text -->
+        <button id="start-btn" class="cyber-btn">ENTER THE BATTLEFIELD</button>
+    </div>
+
+    <!-- GAMEPLAY WRAPPER (FIXED 1000x700 SCALED) -->
+    <div id="app-container" class="hidden">
+        <div id="game-screen" class="screen active">
+            <div id="ui-layer">
+                <div id="hud" class="glass-panel">
+                    <span class="stat">CREDITS: <span id="money" class="cyan-text">300</span></span>
+                    <span class="stat">INTEGRITY: <span id="lives">💖💖💖</span></span>
+                </div>
+                
+                <div id="wave-controls" class="glass-panel">
+                    <span class="stat">WAVE: <span id="wave-display" class="cyan-text">1/20</span></span>
+                    <button id="call-wave-btn" class="t-btn" style="--t-color: #39FF14; padding: 8px 12px;">CALL WAVE</button>
+                    <label style="color: var(--c-white); font-size: 14px; display:flex; align-items:center; gap:5px; cursor: pointer;">
+                        <input type="checkbox" id="auto-start-chk"> AUTO
+                    </label>
+                </div>
+                
+                <div id="controls">
+                    <button id="speed-btn" class="icon-btn" title="2x Speed">⏩</button>
+                    <button id="pause-btn" class="icon-btn" title="Pause">⏸️</button>
+                    <button id="restart-btn" class="icon-btn" title="Restart">🔄</button>
+                    <button id="home-btn" class="icon-btn" title="Home">🏠</button>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas" width="1000" height="700"></canvas>
+            <div id="pause-overlay" class="hidden">QUANTUM FREEZE</div>
+
+            <div id="context-menu" class="hidden">
+                <div id="build-menu" class="menu-section hidden">
+                    <button class="t-btn" id="btn-build-smg" style="--t-color: #00FFFF;">SMG (50)</button>
+                    <button class="t-btn" id="btn-build-shotgun" style="--t-color: #FF3131;">SHOTGUN (75)</button>
+                    <button class="t-btn" id="btn-build-sniper" style="--t-color: #6F00FF;">SNIPER (100)</button>
+                </div>
+                <div id="upgrade-menu" class="menu-section hidden">
+                    <button class="t-btn" id="btn-upgrade" style="--t-color: #FFD700;">UPGRADE</button>
+                    <button class="t-btn" id="btn-sell" style="--t-color: #FF5F00;">SELL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
