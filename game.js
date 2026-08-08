@@ -1,12 +1,24 @@
-// --- AUTO-SCALE FOR MOBILE LANDSCAPE ---
+// --- V2 PERFECT MOBILE SCALING ---
 function resizeApp() {
     const container = document.getElementById('app-container');
     if(!container) return;
-    const scaleX = window.innerWidth / 1000;
-    const scaleY = window.innerHeight / 700;
-    const scale = Math.min(scaleX, scaleY);
-    if (scale < 1) { container.style.transform = `scale(${scale})`; } 
-    else { container.style.transform = `scale(1)`; }
+    
+    const targetWidth = 1000;
+    const targetHeight = 700;
+    const windowRatio = window.innerWidth / window.innerHeight;
+    const targetRatio = targetWidth / targetHeight;
+    
+    let scale;
+    if (windowRatio < targetRatio) {
+        scale = window.innerWidth / targetWidth;
+    } else {
+        scale = window.innerHeight / targetHeight;
+    }
+
+    container.style.transform = `scale(${scale})`;
+    // Center it mathematically
+    container.style.left = `${(window.innerWidth - (targetWidth * scale)) / 2}px`;
+    container.style.top = `${(window.innerHeight - (targetHeight * scale)) / 2}px`;
 }
 window.addEventListener('resize', resizeApp);
 resizeApp();
@@ -21,7 +33,8 @@ const PALETTE = {
 };
 
 const TOWER_TYPES = {
-    smg: { cost: 50, range: 120, damage: 15, fireRate: 12, color: PALETTE.CYAN, pierce: 1 },
+    // V2 BUFF: SMG is now a rapid-fire laser shredder!
+    smg: { cost: 50, range: 140, damage: 18, fireRate: 6, color: PALETTE.CYAN, pierce: 1 },
     shotgun: { cost: 75, range: 90, damage: 45, fireRate: 50, color: PALETTE.NEON_RED, pierce: 1 },
     sniper: { cost: 100, range: 350, damage: 150, fireRate: 90, color: PALETTE.ELECTRIC_INDIGO, pierce: 3 }
 };
@@ -96,7 +109,6 @@ const tutorialModal = document.getElementById('tutorial-modal');
 
 // --- EVENT LISTENERS ---
 
-// TUTORIAL MODAL LISTENERS
 document.getElementById('tutorial-btn').addEventListener('click', () => { tutorialModal.classList.remove('hidden'); });
 document.getElementById('close-tutorial-btn').addEventListener('click', () => { tutorialModal.classList.add('hidden'); });
 
@@ -107,10 +119,10 @@ mapCards.forEach(card => {
     });
 });
 
-// TOGGLE SCREENS
 startBtn.addEventListener('click', () => {
     homeScreen.classList.remove('active'); 
     appContainer.classList.remove('hidden'); 
+    resizeApp(); // Force a resize calculation when game shows
     resetGame();
 });
 
@@ -161,7 +173,7 @@ btnUpgrade.addEventListener('click', () => {
     if (money >= upgradeCost) {
         money -= upgradeCost; activeTower.level++; activeTower.totalSpent += upgradeCost;
         activeTower.damage = Math.floor(activeTower.damage * 1.3);
-        activeTower.range += 10; activeTower.fireRate = Math.max(5, Math.floor(activeTower.fireRate * 0.9));
+        activeTower.range += 10; activeTower.fireRate = Math.max(3, Math.floor(activeTower.fireRate * 0.9));
         updateHUD();
         let color = activeTower.level >= 10 ? PALETTE.GOLD : (activeTower.level >= 5 ? PALETTE.SILVER : PALETTE.BRONZE);
         floatingTexts.push(new FloatingText(activeTower.x, activeTower.y - 20, `LV ${activeTower.level}!`, color));
@@ -226,7 +238,6 @@ function initHomeParticles() {
         document.head.appendChild(style);
     }
 
-    // FIXED: Uses entirely VW and VH so they cover every corner of the screen
     for(let i = 0; i < 50; i++) {
         const p = document.createElement('div'); p.className = 'p-particle';
         const size = Math.random() * 4 + 2; p.style.width = size + 'px'; p.style.height = size + 'px';
@@ -239,15 +250,27 @@ function initHomeParticles() {
 }
 initHomeParticles();
 
+// V2: DYNAMIC WAVE SPAWNER
 function generateWaveQueue(waveNum) {
-    let queue = []; let numEnemies = 10 + (waveNum * 2);
-    if (waveNum % 10 === 0) { queue.push('boss'); numEnemies = 5 + waveNum; }
+    let queue = []; 
+    // V2: Exponentially increasing enemy count to build a massive economy
+    let numEnemies = 15 + Math.floor(Math.pow(waveNum, 1.4) * 4);
+    
+    // V2: Boss every 5 waves!
+    if (waveNum % 5 === 0) { 
+        queue.push('boss'); 
+        // Add tanks to protect the boss
+        for(let i = 0; i < waveNum; i++) queue.push('tank');
+    }
+    
     for(let i=0; i<numEnemies; i++) {
         let r = Math.random();
         if (waveNum < 3) { queue.push('standard'); } 
-        else if (waveNum < 6) { r < 0.3 ? queue.push('scout') : queue.push('standard'); } 
+        else if (waveNum < 6) { r < 0.2 ? queue.push('scout') : queue.push('standard'); } 
         else {
-            if (r < 0.2) queue.push('tank'); else if (r < 0.5) queue.push('scout'); else queue.push('standard');
+            if (r < 0.15) queue.push('tank'); 
+            else if (r < 0.35) queue.push('scout'); 
+            else queue.push('standard');
         }
     }
     return queue;
@@ -386,7 +409,7 @@ function updateGameLogic() {
             if (frameCount % 45 === 0) { 
                 let type = spawnQueue.shift();
                 
-                // FIXED: Exponential 1.5x enemy health multiplier every single round!
+                // V2 MULTIPLIER: 1.5x enemy health exponentially every round
                 let hpMod = Math.pow(1.5, currentWave - 1); 
                 
                 let e = new Enemy(type, hpMod);
