@@ -92,8 +92,13 @@ const upgradeMenu = document.getElementById('upgrade-menu');
 const btnUpgrade = document.getElementById('btn-upgrade');
 const btnSell = document.getElementById('btn-sell');
 const speedBtn = document.getElementById('speed-btn');
+const tutorialModal = document.getElementById('tutorial-modal');
 
 // --- EVENT LISTENERS ---
+
+// TUTORIAL MODAL LISTENERS
+document.getElementById('tutorial-btn').addEventListener('click', () => { tutorialModal.classList.remove('hidden'); });
+document.getElementById('close-tutorial-btn').addEventListener('click', () => { tutorialModal.classList.add('hidden'); });
 
 mapCards.forEach(card => {
     card.addEventListener('click', () => {
@@ -221,12 +226,13 @@ function initHomeParticles() {
         document.head.appendChild(style);
     }
 
+    // FIXED: Uses entirely VW and VH so they cover every corner of the screen
     for(let i = 0; i < 50; i++) {
         const p = document.createElement('div'); p.className = 'p-particle';
         const size = Math.random() * 4 + 2; p.style.width = size + 'px'; p.style.height = size + 'px';
         const color = colorChoices[Math.floor(Math.random() * colorChoices.length)];
         p.style.background = color; p.style.boxShadow = `0 0 10px ${color}`;
-        p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%';
+        p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
         p.style.animation = `particle-drift ${Math.random() * 20 + 10}s ${Math.random() * -20}s infinite linear`;
         container.appendChild(p);
     }
@@ -379,7 +385,10 @@ function updateGameLogic() {
         if (spawnQueue.length > 0) {
             if (frameCount % 45 === 0) { 
                 let type = spawnQueue.shift();
-                let hpMod = 1 + (currentWave * 0.10); 
+                
+                // FIXED: Exponential 1.5x enemy health multiplier every single round!
+                let hpMod = Math.pow(1.5, currentWave - 1); 
+                
                 let e = new Enemy(type, hpMod);
                 enemies.push(e); if (type === 'boss') activeBoss = e;
             }
